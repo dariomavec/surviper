@@ -5,12 +5,44 @@ description = ""
 authors = ["Dario Mavec <dario.mavec@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.8,<3.11"
+keras = "^2.9.0"
+keras-facenet = "^0.3.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 pre-commit = "^2.20.0"
+flake8 = "^4.0.1"
+black = {version = "^22.6.0", allow-prereleases = true}
+keras = "^2.9.0"
+tensorflow = "^2.9.1"
+scipy = "^1.8.1"
+Pillow = "^9.2.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 79
+target-version = ['py38']
+include = '\.pyi?$'
+exclude = '''
+
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+  | foo.py           # also separately exclude a file named foo.py in
+                     # the root of the project
+)
+'''
