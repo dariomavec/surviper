@@ -8,6 +8,8 @@ authors = ["Dario Mavec <dario.mavec@gmail.com>"]
 python = ">=3.8,<3.11"
 keras = "^2.9.0"
 keras-facenet = "^0.3.2"
+matplotlib = "^3.5.2"
+scikit-learn = "^1.1.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
