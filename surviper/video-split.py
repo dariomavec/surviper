@@ -45,7 +45,6 @@ def sample_video(path, interval, season, endtime=10e99):
 
         if capture_time > endtime:
             break
-        # print(ts, out_path)
 
 
 def sample_season(season, interval):

@@ -1,3 +1,5 @@
+import sys
+import os
 from math import sqrt, ceil
 from keras_facenet import FaceNet
 from PIL import Image
@@ -7,6 +9,18 @@ from os import listdir
 from re import sub
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
+from contextlib import contextmanager
+
+
+@contextmanager
+def suppress_stdout():
+    with open(os.devnull, "w") as devnull:
+        old_stdout = sys.stdout
+        sys.stdout = devnull
+        try:
+            yield
+        finally:
+            sys.stdout = old_stdout
 
 
 def save_pickle(obj, path):
@@ -30,7 +44,8 @@ def prep_image(path):
 
 
 def prep_folder(path):
-    return [prep_image(path + file) for file in sorted(listdir(path))]
+    for file in sorted(listdir(path)):
+        yield prep_image(path + file)
 
 
 def export_tests(img_obj, path):
@@ -97,20 +112,26 @@ def export_cast_grid(cast, path):
 
 
 def detect_faces(imgs, embedder):
-    img_obj = [
-        dict(
-            p_img,
-            **{
-                "faces": [
-                    dict(embedding, **{"name": idx})
-                    for idx, embedding in enumerate(
-                        embedder.extract(p_img["pixels"])
-                    )
-                ]
-            },
-        )
-        for p_img in imgs
-    ]
+    img_obj = []
+
+    for i, p_img in enumerate(imgs):
+        with suppress_stdout():
+            img_obj.append(
+                dict(
+                    p_img,
+                    **{
+                        "faces": [
+                            dict(embedding, **{"name": idx})
+                            for idx, embedding in enumerate(
+                                embedder.extract(p_img["pixels"])
+                            )
+                        ]
+                    },
+                )
+            )
+
+        if (i % 100) == 0:
+            print(p_img["name"])
 
     return img_obj
 
@@ -125,7 +146,11 @@ def prepare_season(season):
     # Datasets
     data = {
         "cast": detect_faces(
-            prep_folder("img/" + season + "/cast/") + prep_folder("img/host/"),
+            prep_folder("img/" + season + "/cast/"),
+            embedder,
+        )
+        + detect_faces(
+            prep_folder("img/host/"),
             embedder,
         ),
         "tests": detect_faces(
@@ -155,5 +180,5 @@ def process_episodes(season):
     save_pickle(data, "data/" + season + "-episodes.obj")
 
 
-prepare_season("us42")
-# process_episodes("us42")
+# prepare_season("us42")
+process_episodes("us42")
