@@ -93,25 +93,31 @@ def export_img(img_obj, path):
     plt.close()
 
 
-# load dataset
-data = load_pickle("data/us41-training.obj")
-model = build_model(data)
+def export_data(season):
+    # load dataset
+    data = load_pickle("data/" + season + "-training.obj")
+    model = build_model(data)
 
-# test
-tests = run_model(data["tests"], model)
+    # test
+    tests = run_model(data["tests"], model)
 
-path = "img/us41/tests/outputs/"
-[export_img(test, path) for test in tests]
+    path = "img/" + season + "/tests/outputs/"
+    [export_img(test, path) for test in tests]
 
-# run against episodes
-episodes = run_model(load_pickle("data/us41-episodes.obj"), model)
+    # run against episodes
+    episodes = run_model(
+        load_pickle("data/" + season + "-episodes.obj"), model
+    )
 
-# Export json with name, faces
-export = [
-    {"file": scene["name"], "faces": [face["name"] for face in scene["faces"]]}
-    for scene in episodes
-    if len(scene["faces"]) > 0
-]
+    # Export json with name, faces
+    export = [
+        {
+            "file": scene["name"],
+            "faces": [face["name"] for face in scene["faces"]],
+        }
+        for scene in episodes
+        if len(scene["faces"]) > 0
+    ]
 
-with open("img/us41/episodes.json", "w") as write:
-    json.dump(export, write)
+    with open("data/json/" + season + ".json", "w") as write:
+        json.dump(export, write)

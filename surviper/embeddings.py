@@ -17,9 +17,13 @@ def save_pickle(obj, path):
 def prep_image(path):
     image = Image.open(path).convert("RGB")
     pixels = asarray(image)
+    name = sub(".*/|\\.[a-z]+", "", path)
+
+    if name[0:4] == "host":
+        name = "host"
 
     return {
-        "name": sub(".*/|\\.[a-z]+", "", path),
+        "name": name,
         "image": image,
         "pixels": pixels,
     }
@@ -121,7 +125,8 @@ def prepare_season(season):
     # Datasets
     data = {
         "cast": detect_faces(
-            prep_folder("img/" + season + "/cast/"), embedder
+            prep_folder("img/" + season + "/cast/") + prep_folder("img/host/"),
+            embedder,
         ),
         "tests": detect_faces(
             prep_folder("img/" + season + "/tests/inputs/"), embedder
@@ -150,5 +155,5 @@ def process_episodes(season):
     save_pickle(data, "data/" + season + "-episodes.obj")
 
 
-# prepare_season('us41')
-process_episodes("us41")
+prepare_season("us42")
+# process_episodes("us42")
