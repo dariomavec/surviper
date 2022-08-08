@@ -121,3 +121,6 @@ def export_data(season):
 
     with open("data/json/" + season + ".json", "w") as write:
         json.dump(export, write)
+
+
+export_data("us42")

@@ -10,6 +10,7 @@ from re import sub
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from contextlib import contextmanager
+from datetime import datetime
 
 
 @contextmanager
@@ -111,27 +112,29 @@ def export_cast_grid(cast, path):
     file.close()
 
 
-def detect_faces(imgs, embedder):
+def detect_faces(imgs, embedder, keep_pixels=False):
     img_obj = []
 
     for i, p_img in enumerate(imgs):
         with suppress_stdout():
             img_obj.append(
-                dict(
-                    p_img,
-                    **{
-                        "faces": [
-                            dict(embedding, **{"name": idx})
-                            for idx, embedding in enumerate(
-                                embedder.extract(p_img["pixels"])
-                            )
-                        ]
-                    },
-                )
+                {
+                    "name": p_img["name"],
+                    "faces": [
+                        dict(embedding, **{"name": idx})
+                        for idx, embedding in enumerate(
+                            embedder.extract(p_img["pixels"])
+                        )
+                    ],
+                }
             )
+            if keep_pixels:
+                img_obj[i]["pixels"] = p_img["pixels"]
 
         if (i % 100) == 0:
-            print(p_img["name"])
+            now = datetime.now()
+            current_time = now.strftime("%H:%M:%S")
+            print(current_time + ": " + p_img["name"])
 
     return img_obj
 
@@ -146,15 +149,13 @@ def prepare_season(season):
     # Datasets
     data = {
         "cast": detect_faces(
-            prep_folder("img/" + season + "/cast/"),
-            embedder,
+            prep_folder("img/" + season + "/cast/"), embedder, keep_pixels=True
         )
-        + detect_faces(
-            prep_folder("img/host/"),
-            embedder,
-        ),
+        + detect_faces(prep_folder("img/host/"), embedder, keep_pixels=True),
         "tests": detect_faces(
-            prep_folder("img/" + season + "/tests/inputs/"), embedder
+            prep_folder("img/" + season + "/tests/inputs/"),
+            embedder,
+            keep_pixels=True,
         ),
     }
 
@@ -180,5 +181,5 @@ def process_episodes(season):
     save_pickle(data, "data/" + season + "-episodes.obj")
 
 
-# prepare_season("us42")
-process_episodes("us42")
+prepare_season("us42")
+# process_episodes("us42")
