@@ -48,19 +48,23 @@ def predict_faces(faces, model):
         )
 
         prediction = model["model"].predict(testX)
+        # prediction_prob = model["model"].predict_proba(testX)
 
         # TODO: Have a way to identify low likelihood predictions and cull
         names = model["out-encoder"].inverse_transform(prediction)
         for i, name in enumerate(names):
+            # print(name)
+            # print(max(prediction_prob[i]) / min(prediction_prob[i]))
             faces[i].update({"name": name})
         return faces
 
 
 def run_model(data, model):
-    return [
-        dict(img, **{"faces": predict_faces(img["faces"], model)})
-        for img in data
-    ]
+    for img in data:
+        print(img["name"])
+        img.update({"faces": predict_faces(img["faces"], model)})
+
+    return data
 
 
 def export_img(img_obj, path):
