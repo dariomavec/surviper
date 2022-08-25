@@ -4,27 +4,13 @@ from sklearn.svm import SVC
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import json
-import sys
-import os
 from facenet_pytorch import MTCNN, InceptionResnetV1
 from os import listdir
 from datetime import datetime
-from contextlib import contextmanager
 from cv2 import VideoCapture, CAP_PROP_POS_MSEC
 from re import finditer
 
 # from sklearn.metrics import accuracy_score
-
-
-@contextmanager
-def suppress_stdout():
-    with open(os.devnull, "w") as devnull:
-        old_stdout = sys.stdout
-        sys.stdout = devnull
-        try:
-            yield
-        finally:
-            sys.stdout = old_stdout
 
 
 def extract_face_embeddings(image, mtcnn, embedder):
@@ -174,7 +160,7 @@ def process_episodes(season, interval, model):
     path = "vid/" + season + "/"
 
     # If required, create a face detection pipeline using MTCNN:
-    mtcnn = MTCNN(keep_all=True)
+    mtcnn = MTCNN(keep_all=True, device="cuda:0")
 
     # Create an inception resnet (in eval mode):
     embedder = InceptionResnetV1(pretrained="vggface2").eval()
@@ -183,6 +169,7 @@ def process_episodes(season, interval, model):
     for file in sorted(listdir(path)):
         video = sample_video(path + file, interval, season)
 
+        # TODO: Move to a batched approach (see shorturl.at/dKNTX)
         for frame, name in video:
             face_embeddings = extract_face_embeddings(frame, mtcnn, embedder)
             frames_with_face_names.append(

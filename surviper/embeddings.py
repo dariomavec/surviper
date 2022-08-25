@@ -1,7 +1,5 @@
-import sys
-import os
 from math import sqrt, ceil
-from keras_facenet import FaceNet
+from facenet_pytorch import MTCNN, InceptionResnetV1
 from PIL import Image
 from numpy import asarray
 from pickle import dump
@@ -9,19 +7,6 @@ from os import listdir
 from re import sub
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
-from contextlib import contextmanager
-from datetime import datetime
-
-
-@contextmanager
-def suppress_stdout():
-    with open(os.devnull, "w") as devnull:
-        old_stdout = sys.stdout
-        sys.stdout = devnull
-        try:
-            yield
-        finally:
-            sys.stdout = old_stdout
 
 
 def save_pickle(obj, path):
@@ -37,11 +22,7 @@ def prep_image(path):
     if name[0:4] == "host":
         name = "host"
 
-    return {
-        "name": name,
-        "image": image,
-        "pixels": pixels,
-    }
+    return {"name": name, "image": image, "pixels": pixels}
 
 
 def prep_folder(path):
@@ -112,50 +93,48 @@ def export_cast_grid(cast, path):
     file.close()
 
 
-def detect_faces(imgs, embedder, keep_pixels=False):
-    img_obj = []
+def detect_faces(imgs, mtcnn, embedder):
+    frames = []
+    for i, img in enumerate(imgs):
+        # Get cropped and prewhitened image tensor
+        faces = mtcnn(img)
 
-    for i, p_img in enumerate(imgs):
-        with suppress_stdout():
-            img_obj.append(
+        if faces is None:
+            embeddings = []
+        else:
+            # Calculate embedding (unsqueeze to add batch dimension)
+            embeddings = [
                 {
-                    "name": p_img["name"],
-                    "faces": [
-                        dict(embedding, **{"name": idx})
-                        for idx, embedding in enumerate(
-                            embedder.extract(p_img["pixels"])
-                        )
-                    ],
+                    "name": idx,
+                    "embedding": embedder(face.unsqueeze(0))
+                    .squeeze(0)
+                    .detach()
+                    .numpy(),
                 }
-            )
-            if keep_pixels:
-                img_obj[i]["pixels"] = p_img["pixels"]
+                for idx, face in enumerate(faces)
+            ]
 
-        if (i % 100) == 0:
-            now = datetime.now()
-            current_time = now.strftime("%H:%M:%S")
-            print(current_time + ": " + p_img["name"])
+        frames.append(
+            {"name": img["name"], "faces": embeddings, "pixels": asarray(img)}
+        )
 
-    return img_obj
+    return frames
 
 
 def prepare_season(season):
-    # Gets a detection dict for each face
-    # in an image. Each one has the bounding box and
-    # face landmarks (from mtcnn.MTCNN) along with
-    # the embedding from FaceNet.
-    embedder = FaceNet()
+    # If required, create a face detection pipeline using MTCNN:
+    mtcnn = MTCNN(keep_all=True)
+    # Create an inception resnet (in eval mode):
+    embedder = InceptionResnetV1(pretrained="vggface2").eval()
 
     # Datasets
     data = {
         "cast": detect_faces(
-            prep_folder("img/" + season + "/cast/"), embedder, keep_pixels=True
+            prep_folder("img/" + season + "/cast/"), mtcnn, embedder
         )
-        + detect_faces(prep_folder("img/host/"), embedder, keep_pixels=True),
+        + detect_faces(prep_folder("img/host/"), mtcnn, embedder),
         "tests": detect_faces(
-            prep_folder("img/" + season + "/tests/inputs/"),
-            embedder,
-            keep_pixels=True,
+            prep_folder("img/" + season + "/tests/inputs/"), mtcnn, embedder
         ),
     }
 
@@ -168,18 +147,4 @@ def prepare_season(season):
     save_pickle(data, "data/" + season + "-training.obj")
 
 
-def process_episodes(season):
-    # Gets a detection dict for each face
-    # in an image. Each one has the bounding box and
-    # face landmarks (from mtcnn.MTCNN) along with
-    # the embedding from FaceNet.
-    embedder = FaceNet()
-
-    # Datasets
-    data = detect_faces(prep_folder("img/" + season + "/eps/"), embedder)
-
-    save_pickle(data, "data/" + season + "-episodes.obj")
-
-
-prepare_season("us42")
-# process_episodes("us42")
+# prepare_season("us42")
