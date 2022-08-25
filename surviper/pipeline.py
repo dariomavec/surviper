@@ -6,9 +6,9 @@ from matplotlib.patches import Rectangle
 import json
 import sys
 import os
-from keras_facenet import FaceNet
-from numpy import asarray
+from facenet_pytorch import MTCNN, InceptionResnetV1
 from os import listdir
+from datetime import datetime
 from contextlib import contextmanager
 from cv2 import VideoCapture, CAP_PROP_POS_MSEC
 from re import finditer
@@ -27,13 +27,20 @@ def suppress_stdout():
             sys.stdout = old_stdout
 
 
-def extract_face_embeddings(image, embedder):
-    pixels = asarray(image)
-    with suppress_stdout():
-        embedded_faces = [
-            face["embedding"] for face in embedder.extract(pixels)
-        ]
-    return embedded_faces
+def extract_face_embeddings(image, mtcnn, embedder):
+    # Get cropped and prewhitened image tensor
+    faces = mtcnn(image)
+
+    if faces is None:
+        return []
+
+    # Calculate embedding (unsqueeze to add batch dimension)
+    embeddings = [
+        embedder(face.unsqueeze(0)).squeeze(0).detach().numpy()
+        for face in faces
+    ]
+
+    return embeddings
 
 
 def load_pickle(path):
@@ -150,8 +157,8 @@ def sample_video(path, interval, season, endtime=10e99):
     while success:
         ts = str(int(capture_time / 1000)).rjust(5, "0")
         name = "%s%s_%s" % (season, ep, ts)
-        if capture_time % (100 * interval) == 0:
-            print(name)
+        if ((capture_time - sample_interval) % (100 * sample_interval)) == 0:
+            print(datetime.now().strftime("%H:%M:%S"), " => ", name, "")
         if success:
             yield image, name
 
@@ -165,18 +172,19 @@ def sample_video(path, interval, season, endtime=10e99):
 
 def process_episodes(season, interval, model):
     path = "vid/" + season + "/"
-    # Gets a detection dict for each face
-    # in an image. Each one has the bounding box and
-    # face landmarks (from mtcnn.MTCNN) along with
-    # the embedding from FaceNet.
-    embedder = FaceNet()
+
+    # If required, create a face detection pipeline using MTCNN:
+    mtcnn = MTCNN(keep_all=True)
+
+    # Create an inception resnet (in eval mode):
+    embedder = InceptionResnetV1(pretrained="vggface2").eval()
 
     frames_with_face_names = []
     for file in sorted(listdir(path)):
         video = sample_video(path + file, interval, season)
 
         for frame, name in video:
-            face_embeddings = extract_face_embeddings(frame, embedder)
+            face_embeddings = extract_face_embeddings(frame, mtcnn, embedder)
             frames_with_face_names.append(
                 {
                     "file": name,
