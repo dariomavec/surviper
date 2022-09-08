@@ -1,12 +1,26 @@
 from math import sqrt, ceil
 from facenet_pytorch import MTCNN, InceptionResnetV1
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from numpy import asarray
 from pickle import dump
-from os import listdir
+from os import listdir, mkdir
+import os
 from re import sub
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
+
+
+def mkdir_if_not_exists(path):
+    if not os.path.exists(path):
+        mkdir(path)
+
+
+def setup_season(season):
+    mkdir_if_not_exists("img/" + season)
+    mkdir_if_not_exists("img/" + season + "/cast/")
+    mkdir_if_not_exists("img/" + season + "/tests/")
+    mkdir_if_not_exists("img/" + season + "/tests/inputs/")
+    mkdir_if_not_exists("img/" + season + "/tests/labels/")
+    mkdir_if_not_exists("img/" + season + "/tests/outputs/")
 
 
 def save_pickle(obj, path):
@@ -17,7 +31,7 @@ def save_pickle(obj, path):
 def prep_image(path):
     image = Image.open(path).convert("RGB")
     pixels = asarray(image)
-    name = sub(".*/|\\.[a-z]+", "", path)
+    name = sub(".*/|\\.[a-z]+$|(-alt)", "", path)
 
     if name[0:4] == "host":
         name = "host"
@@ -31,38 +45,27 @@ def prep_folder(path):
 
 
 def export_tests(img_obj, path):
-    plt.axis("off")
-    plt.imshow(img_obj["pixels"])
-    # Get the current reference
-    ax = plt.gca()
     file = open(path + sub("\\.png", ".txt", img_obj["name"]) + ".txt", "a")
+    img_draw = img_obj["image"].copy()
+    draw = ImageDraw.Draw(img_draw)
 
     for face in img_obj["faces"]:
-        ax.add_patch(
-            Rectangle(
-                (face["box"][0:2]),
-                face["box"][2],
-                face["box"][3],
-                linewidth=1,
-                edgecolor="r",
-                facecolor="none",
-            )
-        )
+        box = face["box"]
+        draw.rectangle(box.tolist(), width=5)
 
-        ax.text(
-            face["box"][0] + face["box"][2] / 2,
-            face["box"][1],
-            face["name"],
-            color="white",
-            horizontalalignment="center",
-            size="smaller",
+        # get a font
+        fnt = ImageFont.truetype("img/OpenSans.ttf", 40)
+        draw.text(
+            xy=(box[0], box[1]),
+            text=face["name"],
+            font=fnt,
+            fill=(255, 255, 255, 128),
         )
 
         file.writelines(str(face["name"]) + ",\n")
 
+    img_draw.save(path + img_obj["name"] + ".png")
     file.close()
-    plt.savefig(path + img_obj["name"])
-    plt.close()
 
 
 def export_cast_grid(cast, path):
@@ -97,7 +100,9 @@ def detect_faces(imgs, mtcnn, embedder):
     frames = []
     for i, img in enumerate(imgs):
         # Get cropped and prewhitened image tensor
-        faces = mtcnn(img)
+        faces = mtcnn(img["image"])
+
+        boxes, _ = mtcnn.detect(img["image"])
 
         if faces is None:
             embeddings = []
@@ -105,23 +110,31 @@ def detect_faces(imgs, mtcnn, embedder):
             # Calculate embedding (unsqueeze to add batch dimension)
             embeddings = [
                 {
-                    "name": idx,
+                    "name": "face" + str(idx),
                     "embedding": embedder(face.unsqueeze(0))
                     .squeeze(0)
                     .detach()
                     .numpy(),
+                    "box": boxes[idx],
                 }
                 for idx, face in enumerate(faces)
             ]
 
         frames.append(
-            {"name": img["name"], "faces": embeddings, "pixels": asarray(img)}
+            {
+                "name": img["name"],
+                "faces": embeddings,
+                "pixels": asarray(img["image"]),
+                "image": img["image"],
+            }
         )
 
     return frames
 
 
 def prepare_season(season):
+    setup_season(season)
+
     # If required, create a face detection pipeline using MTCNN:
     mtcnn = MTCNN(keep_all=True)
     # Create an inception resnet (in eval mode):
@@ -147,4 +160,4 @@ def prepare_season(season):
     save_pickle(data, "data/" + season + "-training.obj")
 
 
-# prepare_season("us42")
+prepare_season("us42")
