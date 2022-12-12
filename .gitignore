@@ -158,6 +158,7 @@ cython_debug/
 .vscode/\n.idea/
 
 models/
-img/
+/img/
+
 data/
 vid/
