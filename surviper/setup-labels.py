@@ -160,4 +160,8 @@ def prepare_season(season):
     save_pickle(data, "data/" + season + "-training.obj")
 
 
-prepare_season("us42")
+prepare_season("us1")
+prepare_season("us2")
+prepare_season("us3")
+prepare_season("us4")
+prepare_season("us5")

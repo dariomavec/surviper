@@ -186,11 +186,14 @@ def process_episodes(season, interval, model, export_images=False):
                     "faces": faces,
                 }
             )
-
             if export_images:
                 print("export")
 
     return frames_with_face_names
 
 
-run_pipeline("us42", 1)
+run_pipeline("us1", 1)
+run_pipeline("us2", 1)
+run_pipeline("us3", 1)
+run_pipeline("us4", 1)
+run_pipeline("us5", 1)
