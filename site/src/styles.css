@@ -1,0 +1,10 @@
+.project ul { overflow: hidden; }
+.project ul li { float: left; }
+/* break into rows of 2 */
+.project ul li:nth-child(odd) { clear: both; }
+
+.img-icons {
+    width: auto;
+    background-color: #fFFFFF;
+    padding: 10px;
+}

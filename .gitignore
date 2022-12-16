@@ -162,3 +162,8 @@ models/
 
 data/
 vid/
+
+
+node_modules
+
+.parcel-cache

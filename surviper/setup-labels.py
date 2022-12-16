@@ -4,9 +4,12 @@ from PIL import Image, ImageDraw, ImageFont
 from numpy import asarray
 from pickle import dump
 from os import listdir, mkdir
+import glob
 import os
 from re import sub
 import matplotlib.pyplot as plt
+from shutil import copytree
+import json
 
 
 def mkdir_if_not_exists(path):
@@ -151,6 +154,18 @@ def prepare_season(season):
         ),
     }
 
+    # Add cast and summary json to site
+    mkdir_if_not_exists("site/src/img/" + season + "/")
+    cast_path = "site/src/img/" + season + "/cast/"
+    if not os.path.exists(cast_path):
+        copytree("img/" + season + "/cast/", cast_path)
+
+    cast = glob.glob("site/src/img/" + season + "/cast/*.png")
+    names = [sub("(.*/)|(\\.png)", "", cast_member) for cast_member in cast]
+
+    with open(cast_path + "cast.json", "w") as f:
+        json.dump(names, f)
+
     export_cast_grid(data["cast"], "img/" + season + "/tests/labels/")
     [
         export_tests(test, "img/" + season + "/tests/labels/")
@@ -160,8 +175,8 @@ def prepare_season(season):
     save_pickle(data, "data/" + season + "-training.obj")
 
 
-prepare_season("us1")
+# prepare_season("us1")
 prepare_season("us2")
-prepare_season("us3")
-prepare_season("us4")
-prepare_season("us5")
+# prepare_season("us3")
+# prepare_season("us4")
+# prepare_season("us5")

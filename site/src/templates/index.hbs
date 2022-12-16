@@ -1,0 +1,61 @@
+<div class="container-lg">
+    <h1>Survivor Face Detection Training</h1>
+    <ul class="nav nav-tabs" id="survivorTabs" role="tablist">
+        {{#each cast}}
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {{#if @first}}active{{/if}}"
+                id="surv-{{@key}}-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#surv-{{@key}}-tab-pane"
+                type="button"
+                role="tab"
+                aria-controls="surv-{{@key}}-tab-pane"
+                aria-selected="{{#if @first}}true{{else}}false{{/if}}">{{@key}}</button>
+        {{/each}}
+    </ul>
+
+    <div class="tab-content" id="survivorTabContent">
+        {{#each cast}}
+        <div class="tab-pane fade {{#if @first}}show active{{/if}}"
+            id="surv-{{@key}}-tab-pane"
+            role="tabpanel"
+            aria-labelledby="surv-{{@key}}-tab"
+            tabindex="0">
+
+            <form id="myForm"></form>
+            {{#each this}}
+                {{#if (every6 @index)}}<div class="row">{{/if}}
+                    <div class="col-2">
+                        <img src={{this}} class="img-responsive img-icons" />
+                        <input
+                        type="radio"
+                        id="{{@../key}}"
+                        name="{{@../key}}"
+                        value="{{@key}}" />
+                    </div>
+                {{#if (every6offset @index)}}</div>{{/if}}
+            {{/each}}
+                <div class="col-2">
+                    Not part of cast
+                    <input
+                        type="radio"
+                        id="{{@key}}"
+                        name="{{@.key}}"
+                        value="unknown" />
+                </div>
+                <div class="col-2">
+                    Not sure...
+                    <input
+                        type="radio"
+                        id="{{@key}}"
+                        name="{{@key}}"
+                        value="n/a" />
+                </div>
+            </div>
+            <div class="col-auto">
+                <button onclick="SubForm()" type="submit" class="btn btn-primary mb-3">Submit</button>
+            </div>
+        </div>
+    {{/each}}
+    </div>
+</div>

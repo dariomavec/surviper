@@ -1,0 +1,26 @@
+{
+  "name": "site",
+  "version": "1.0.0",
+  "description": "Faces Validation Form",
+  "main": "src/app.js",
+  "source": "src/index.html",
+  "scripts": {
+    "start": "parcel",
+    "build": "parcel build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@parcel/resolver-glob": "^2.8.2",
+    "@parcel/transformer-image": "^2.8.2",
+    "bootstrap": "^5.2.3",
+    "express": "^4.18.2",
+    "handlebars": "^4.7.7",
+    "parcel-transformer-hbs": "^1.0.4"
+  },
+  "devDependencies": {
+    "process": "^0.11.10"
+  },
+  "target": "node"
+}
