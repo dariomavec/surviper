@@ -6,8 +6,8 @@ import cast from "url:./img/**/cast/*.png";
 import training from "url:./img/**/training/*.png";
 
 
-Handlebars.registerHelper('every6', function (value) {
-    return (value % 6) == 0;
+Handlebars.registerHelper('every4', function (value) {
+    return (value % 4) == 0;
   });
 
 Handlebars.registerHelper('every4offset', function (value) {
