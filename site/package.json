@@ -2,7 +2,6 @@
   "name": "site",
   "version": "1.0.0",
   "description": "Faces Validation Form",
-  "main": "src/app.js",
   "source": "src/index.html",
   "scripts": {
     "start": "parcel",
