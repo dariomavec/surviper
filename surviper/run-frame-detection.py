@@ -289,5 +289,6 @@ def generate_training(season, interval, n, margin=2):
 # run_pipeline("us4", 1)
 # run_pipeline("us5", 1)
 
-
-generate_training("us1", interval=3, n=5, margin=50)
+# Capture latest timestamp where person is captured
+# Capture some images at "bad" distance
+generate_training("us1", interval=3, n=3, margin=50)

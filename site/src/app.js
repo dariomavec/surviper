@@ -10,8 +10,8 @@ Handlebars.registerHelper('every6', function (value) {
     return (value % 6) == 0;
   });
 
-Handlebars.registerHelper('every6offset', function (value) {
-    return ((value + 1) % 6) == 0;
+Handlebars.registerHelper('every4offset', function (value) {
+    return ((value + 1) % 4) == 0;
   });
 
 var seasons = ['us1', 'us2'];
