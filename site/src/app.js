@@ -1,5 +1,5 @@
 const Handlebars = require("handlebars");
-const Bootstrap = require("bootstrap")
+const Bootstrap = require("bootstrap");
 
 import template from './templates/index.hbs';
 import cast from "url:./img/**/cast/*.png";

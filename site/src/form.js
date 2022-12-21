@@ -26,8 +26,9 @@ function appendValues(spreadsheetId, range, valueInputOption, _values, callback)
   }
 }
 
-function SubForm (){
-  appendValues('1IaU8E938msrbuMN38qyjLyKuyRMMI1a3srSFtgLN96s', "Form!A1:D1")
+function SubForm () {
+  authorize().then(listMajors).catch(console.error);
+  // appendValues('1IaU8E938msrbuMN38qyjLyKuyRMMI1a3srSFtgLN96s', "Form!A1:D1")
     // $.ajax({
     //     url:'https://api.apispreadsheets.com/data/410/',
     //     type:'post',

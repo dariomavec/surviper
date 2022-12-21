@@ -5,7 +5,7 @@
 
 // TODO(developer): Set to client ID and API key from the Developer Console
 const CLIENT_ID = '16613645453-bq86fhhsj27ajhddh7h5be77ulae9bp7.apps.googleusercontent.com';
-const API_KEY = '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';
+const API_KEY = 'AIzaSyBKEnDej-XO_35pijqYeNH2LT3iazZ8juw';
 
 // Discovery doc URL for APIs used by the quickstart
 const DISCOVERY_DOC = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
@@ -105,25 +105,26 @@ if (token !== null) {
  * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
  */
 async function listMajors() {
-let response;
-try {
-    // Fetch first 10 files
-    response = await gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
-    range: 'Class Data!A2:E',
-    });
-} catch (err) {
-    document.getElementById('content').innerText = err.message;
-    return;
-}
-const range = response.result;
-if (!range || !range.values || range.values.length == 0) {
-    document.getElementById('content').innerText = 'No values found.';
-    return;
-}
-// Flatten to string to display
-const output = range.values.reduce(
-    (str, row) => `${str}${row[0]}, ${row[4]}\n`,
-    'Name, Major:\n');
-document.getElementById('content').innerText = output;
+    console.log('test')
+    let response;
+    try {
+        // Fetch first 10 files
+        response = await gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+        range: 'Class Data!A2:E',
+        });
+    } catch (err) {
+        document.getElementById('content').innerText = err.message;
+        return;
+    }
+    const range = response.result;
+    if (!range || !range.values || range.values.length == 0) {
+        document.getElementById('content').innerText = 'No values found.';
+        return;
+    }
+    // Flatten to string to display
+    const output = range.values.reduce(
+        (str, row) => `${str}${row[0]}, ${row[4]}\n`,
+        'Name, Major:\n');
+    document.getElementById('content').innerText = output;
 }
