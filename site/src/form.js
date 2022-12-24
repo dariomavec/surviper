@@ -12,7 +12,3 @@ const handleSubmit = (event) => {
     .then(() => console.log("Form successfully submitted"))
     .catch((error) => alert(error));
 };
-
-document
-  .querySelector("form")
-  .addEventListener("submit", handleSubmit);
