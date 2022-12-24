@@ -23,6 +23,7 @@
             tabindex="0">
 
             <form name="faces" method="POST" data-netlify="true">
+            <input type="hidden" name="form-name" value="faces" />
             {{#each this}}
                 {{#if (every4 @index)}}<div class="row">{{/if}}
                     <div class="col-3">
