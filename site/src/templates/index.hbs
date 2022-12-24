@@ -22,7 +22,7 @@
             aria-labelledby="surv-{{@key}}-tab"
             tabindex="0">
 
-            <form name="faces" action="POST" data-netlify="true">
+            <form name="faces" method="POST" action="" data-netlify="true">
             <input type="hidden" name="form-name" value="faces" />
             {{#each this}}
                 {{#if (every4 @index)}}<div class="row">{{/if}}
