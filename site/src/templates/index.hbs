@@ -27,10 +27,15 @@
                 </div>
             </div>
 
+<<<<<<< HEAD
             <form id="survivor-{{@key}}" action="https://surviper.dmavec.workers.dev/submit" method="POST" class="needs-validation">
             <input type="hidden" id="id" name="id" value={{#with (lookup ../training_imgs @index)~}}{{key}}{{/with}} />
             <input type="hidden" id="season" name="season" value="{{@key}}" />
             <input type="hidden" id="user" name="user" value="dummy" />
+=======
+            <form name="faces" method="POST" action="" data-netlify="true">
+            <input type="hidden" name="form-name" value="faces" />
+>>>>>>> 83cc1322bfb226f805ab95349091cf4dc6e78abb
             {{#each this}}
                 {{#if (every4 @index)}}<div class="row">{{/if}}
                     <div class="col-3">
