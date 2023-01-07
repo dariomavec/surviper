@@ -6,12 +6,13 @@ import json
 from facenet_pytorch import MTCNN, InceptionResnetV1
 import os
 from os import listdir, mkdir
-from datetime import datetime, date
+from datetime import datetime
 from cv2 import VideoCapture, CAP_PROP_POS_MSEC, imwrite
 from re import finditer
 import numpy as np
 from numpy import linalg
 from PIL import ImageDraw, ImageFont
+import shutil
 
 # from sklearn.metrics import accuracy_score
 
@@ -112,6 +113,13 @@ def test_model(data, model):
     return data
 
 
+def deploy_images(season):
+    path = "img/" + season + "/training/"
+    dest = "site/src/img/" + season + "/training/"
+    for file in sorted(listdir(path)):
+        shutil.copy(path + file, dest)
+
+
 def export_img(img_obj, path):
     draw = ImageDraw.Draw(img_obj["image"])
     for face in img_obj["faces"]:
@@ -204,13 +212,12 @@ def process_episodes(season, interval, model, export_images=False):
     return frames_with_face_names
 
 
-def process_training(season, interval, model, cast, n, margin=2):
+def process_training(season, episode, interval, model, cast, n, margin=2):
     path = "vid/" + season + "/"
 
     # Output directories
-    today = str(date.today())
     mkdir_if_not_exists("img/" + season + "/training/")
-    mkdir_if_not_exists("img/" + season + "/training/" + today + "/")
+    mkdir_if_not_exists("site/src/img/" + season + "/training/")
 
     # If required, create a face detection pipeline using MTCNN:
     mtcnn = MTCNN(keep_all=True)
@@ -219,52 +226,48 @@ def process_training(season, interval, model, cast, n, margin=2):
     embedder = InceptionResnetV1(pretrained="vggface2").eval()
 
     frames_with_face_names = []
-    for file in sorted(listdir(path)):
+    file = sorted(listdir(path))[episode - 1]
+    video = sample_video(path + file, interval, season)
+
+    # TODO: Move to a batched approach
+    for frame, name in video:
         if len(cast) == 0:
             break
-        video = sample_video(path + file, interval, season)
-
-        # TODO: Move to a batched approach
-        for frame, name in video:
-            if len(cast) == 0:
-                break
-            face_embeddings, boxes = extract_face_embeddings(
-                frame, mtcnn, embedder, return_box=True
-            )
-            faces, _ = predict_face_names(face_embeddings, model)
-            for idx, face in enumerate(faces):
-                if face in cast.keys():
-                    dest_path = (
-                        "img/"
-                        + season
-                        + "/training/"
-                        + today
-                        + "/"
-                        + face
-                        + "-"
-                        + str(cast[face])
-                        + ".png"
-                    )
-                    box = boxes[idx]
-                    frame_size = np.shape(frame)
-                    box[0] = np.maximum(floor(box[0] - margin / 2), 0)
-                    box[1] = np.maximum(floor(box[1] - margin / 2), 0)
-                    box[2] = np.minimum(
-                        ceil(box[2] + margin / 2), frame_size[1]
-                    )
-                    box[3] = np.minimum(
-                        ceil(box[3] + margin / 2), frame_size[0]
-                    )
-                    img = frame[box[1] : box[3], box[0] : box[2]]
-                    imwrite(dest_path, img)
-                    cast[face] += 1
-                    if cast[face] >= n:
-                        cast.pop(face)
+        face_embeddings, boxes = extract_face_embeddings(
+            frame, mtcnn, embedder, return_box=True
+        )
+        faces, _ = predict_face_names(face_embeddings, model)
+        for idx, face in enumerate(faces):
+            if face in cast.keys():
+                dest_path = (
+                    "img/"
+                    + season
+                    + "/training/"
+                    + season
+                    + "-"
+                    + str(episode).rjust(2, "0")
+                    + "-"
+                    + face
+                    + "-"
+                    + str(cast[face])
+                    + ".png"
+                )
+                box = boxes[idx]
+                frame_size = np.shape(frame)
+                box[0] = np.maximum(floor(box[0] - margin / 2), 0)
+                box[1] = np.maximum(floor(box[1] - margin / 2), 0)
+                box[2] = np.minimum(ceil(box[2] + margin / 2), frame_size[1])
+                box[3] = np.minimum(ceil(box[3] + margin / 2), frame_size[0])
+                img = frame[box[1] : box[3], box[0] : box[2]]
+                imwrite(dest_path, img)
+                cast[face] += 1
+                if cast[face] >= n:
+                    cast.pop(face)
 
     return frames_with_face_names
 
 
-def generate_training(season, interval, n, margin=2):
+def generate_training(season, episode, interval, n, margin=2):
     # load dataset
     data = load_pickle("data/" + season + "-training.obj")
     cast = {c["name"]: 0 for c in data["cast"] if c["name"] != "host"}
@@ -275,12 +278,16 @@ def generate_training(season, interval, n, margin=2):
     # Export json with name, faces
     process_training(
         season=season,
+        episode=episode,
         interval=interval,
         model=model,
         cast=cast,
         n=n,
         margin=margin,
     )
+
+    # Deploy Images
+    deploy_images("us1")
 
 
 # run_pipeline("us1", 1)
@@ -291,5 +298,5 @@ def generate_training(season, interval, n, margin=2):
 
 # Capture latest timestamp where person is captured
 # Capture some images at "bad" distance
-generate_training("us1", interval=3, n=5, margin=50)
-generate_training("us2", interval=3, n=5, margin=50)
+# generate_training("us1", 1, interval=3, n=4, margin=50)
+# generate_training("us2", 1, interval=3, n=4, margin=50)
