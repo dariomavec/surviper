@@ -21,17 +21,25 @@
             role="tabpanel"
             aria-labelledby="surv-{{@key}}-tab"
             tabindex="0">
+            <div class="row">
+                <div class="col">
+                <img src={{#with (lookup ../training_imgs @index)~}}{{src}}{{/with}} class="rounded mx-auto d-block img-header border border-success" />
+                </div>
+            </div>
 
-            <form id="myForm"></form>
+            <form id="survivor-{{@key}}" action="https://surviper.dmavec.workers.dev/submit" method="POST" class="needs-validation">
+            <input type="hidden" id="id" name="id" value={{#with (lookup ../training_imgs @index)~}}{{key}}{{/with}} />
+            <input type="hidden" id="season" name="season" value="{{@key}}" />
+            <input type="hidden" id="user" name="user" value="dummy" />
             {{#each this}}
                 {{#if (every4 @index)}}<div class="row">{{/if}}
                     <div class="col-3">
-                        <img src={{this}} class="img-responsive img-icons" />
+                        <img src={{this}} class="img-responsive img-icons rounded border border-primary" />
                         <input
                         type="radio"
-                        id="{{@../key}}"
-                        name="{{@../key}}"
-                        value="{{@key}}" />
+                        name="survivor"
+                        id="survivor"
+                        value="{{@key}}" required/>
                     </div>
                 {{#if (every4offset @index)}}</div>
                 {{else}}
@@ -39,27 +47,57 @@
                 {{/if}}
             {{/each}}
             <div class="row">
-                <div class="col-2">
-                    Not part of cast<br>
+                <div class="col-3">
+                    <img src={{ ../other_imgs.host }} class="img-responsive img-icons rounded border border-secondary" />
                     <input
                         type="radio"
-                        id="{{@key}}"
-                        name="{{@key}}"
-                        value="unknown" />
+                        name="survivor"
+                        id="survivor"
+                        value="host" />
                 </div>
-                <div class="col-2">
-                    Not sure...<br>
+                <div class="col-3">
+                    <img src={{ ../other_imgs.not_sure }} class="img-responsive img-icons rounded border border-secondary" />
                     <input
                         type="radio"
-                        id="{{@key}}"
-                        name="{{@key}}"
+                        name="survivor"
+                        id="survivor"
                         value="n/a" />
+                </div>
+                <div class="col-3">
+                    <img src={{ ../other_imgs.not_cast }} class="img-responsive img-icons rounded border border-secondary" />
+                    <input
+                        type="radio"
+                        name="survivor"
+                        id="survivor"
+                        value="unknown" />
                 </div>
             </div>
             <div class="col-auto">
-                <button onclick="SubForm()" type="submit" class="btn btn-primary mb-3">Submit</button>
+                <button type="submit" class="btn btn-primary mb-3">Submit</button>
             </div>
+            </form>
         </div>
     {{/each}}
+
+    <script>
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.getElementsByClassName('needs-validation');
+        // Loop over them and prevent submission
+        var validation = Array.prototype.filter.call(forms, function(form) {
+        form.addEventListener('submit', function(event) {
+            if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+        });
+    }, false);
+    })();
+    </script>
     </div>
 </div>

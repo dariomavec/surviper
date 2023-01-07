@@ -1,0 +1,9 @@
+name = "surviper"
+compatibility_date = "2023-01-06"
+
+account_id = "8f7d3018cdad751fdf85aa6c8f3171d4"
+workers_dev = true
+
+[vars]
+AIRTABLE_BASE_ID = "appIoX9oVjqZ5tUcF"
+AIRTABLE_TABLE_NAME = "tblOZEsDuBmnFRqKn"

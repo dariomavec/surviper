@@ -6,5 +6,9 @@
 .img-icons {
     width: auto;
     background-color: #fFFFFF;
-    padding: 10px;
+    margin: 2px;
+}
+
+.img-header {
+    margin: 5px;
 }

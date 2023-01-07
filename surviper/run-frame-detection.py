@@ -291,4 +291,5 @@ def generate_training(season, interval, n, margin=2):
 
 # Capture latest timestamp where person is captured
 # Capture some images at "bad" distance
-generate_training("us1", interval=3, n=3, margin=50)
+generate_training("us1", interval=3, n=5, margin=50)
+generate_training("us2", interval=3, n=5, margin=50)
