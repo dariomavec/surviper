@@ -23,7 +23,8 @@
             tabindex="0">
             <div class="row">
                 <div class="col">
-                <img src={{#with (lookup ../training_imgs @index)~}}{{src}}{{/with}} class="rounded mx-auto d-block img-header border border-success" />
+                <figcaption class="figure-caption text-center">{{#with (lookup ../training_imgs @index)~}}{{key}}{{/with}}</figcaption>
+                <img src={{#with (lookup ../training_imgs @index)~}}{{src}}{{/with}} class="mx-auto d-block img-header border" />
                 </div>
             </div>
 
@@ -34,12 +35,15 @@
             {{#each this}}
                 {{#if (every4 @index)}}<div class="row">{{/if}}
                     <div class="col-3">
-                        <img src={{this}} class="img-responsive img-icons rounded border border-primary" />
+                        <label>
                         <input
-                        type="radio"
-                        name="survivor"
-                        id="survivor"
-                        value="{{@key}}" required/>
+                            type="radio"
+                            name="survivor"
+                            id="survivor"
+                            class="text-center"
+                            value="{{@key}}" required/>
+                        <img src={{this}} class="img-responsive img-icons rounded border border-secondary" />
+                        </label>
                     </div>
                 {{#if (every4offset @index)}}</div>
                 {{else}}
@@ -48,28 +52,34 @@
             {{/each}}
             <div class="row">
                 <div class="col-3">
-                    <img src={{ ../other_imgs.host }} class="img-responsive img-icons rounded border border-secondary" />
+                    <label>
                     <input
                         type="radio"
                         name="survivor"
                         id="survivor"
                         value="host" />
+                    <img src={{ ../other_imgs.host }} class="img-responsive img-icons rounded border border-secondary" />
+                    </label>
                 </div>
                 <div class="col-3">
-                    <img src={{ ../other_imgs.not_sure }} class="img-responsive img-icons rounded border border-secondary" />
+                    <label>
                     <input
                         type="radio"
                         name="survivor"
                         id="survivor"
                         value="n/a" />
+                    <img src={{ ../other_imgs.not_sure }} class="img-responsive img-icons rounded border border-secondary" />
+                    </label>
                 </div>
                 <div class="col-3">
-                    <img src={{ ../other_imgs.not_cast }} class="img-responsive img-icons rounded border border-secondary" />
+                    <label>
                     <input
                         type="radio"
                         name="survivor"
                         id="survivor"
                         value="unknown" />
+                    <img src={{ ../other_imgs.not_cast }} class="img-responsive img-icons rounded border border-secondary" />
+                    </label>
                 </div>
             </div>
             <div class="col-auto">
