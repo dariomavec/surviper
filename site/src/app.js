@@ -10,7 +10,8 @@ var base = Airtable.base(process.env.AIRTABLE_BASE_ID);
 import template from './templates/index.hbs';
 import cast from "url:./img/**/cast/*.png";
 import other_imgs from "url:./img/*.png";
-import training from "url:./img/**/training/**/*.png";
+import training from "url:./img/**/training/*.png";
+console.log("training: ",training)
 
 Handlebars.registerHelper('every4', function (value) {
     return (value % 4) == 0;
@@ -30,7 +31,6 @@ function getAirData() {
         fields: ["id"],
         view: "Grid view"
     }).eachPage(function page(records, fetchNextPage) {
-        console.log(records)
         // This function (`page`) will get called for each page of records.
         ids.push(records.map(function(record) {
           return record.get('id');
@@ -51,13 +51,12 @@ function getAirData() {
 
 async function buildBody() {
   const completed_ids = await getAirData();
-  console.log(completed_ids)
+  // console.log(completed_ids)
 
   var training_imgs = seasons.map((season) => {
     var trn_ssn = training[season];
-    var first_date = Object.keys(trn_ssn)[0];
-    var img_keys = Object.keys(trn_ssn[first_date]);
-    console.log("Img Keys:", img_keys);
+    var img_keys = Object.keys(trn_ssn);
+    console.log(img_keys)
     // console.log(completed_ids.includes("test"))
     var curr_key = img_keys.filter((img_key) => {
       // console.log(img_key);
@@ -67,7 +66,7 @@ async function buildBody() {
 
     return {
       key: curr_key,
-      src: trn_ssn[first_date][curr_key]
+      src: trn_ssn[curr_key]
     };
   });
 
