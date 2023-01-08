@@ -1,5 +1,6 @@
 const Handlebars = require("handlebars");
 const Bootstrap = require("bootstrap");
+var _ = require('lodash');
 var Airtable = require('airtable');
 Airtable.configure({
     endpointUrl: 'https://api.airtable.com',
@@ -53,7 +54,7 @@ async function buildBody() {
   const completed_ids = await getAirData();
   // console.log(completed_ids)
 
-  var training_imgs = seasons.map((season) => {
+  var training_imgs = _.fromPairs(seasons.map((season) => {
     var trn_ssn = training[season];
     var img_keys = Object.keys(trn_ssn);
     console.log(img_keys)
@@ -64,22 +65,28 @@ async function buildBody() {
       return !(completed_ids.includes(img_key));
     })[0];
 
-    return {
+    return [season, {
       key: curr_key,
       src: trn_ssn[curr_key]
-    };
-  });
+    }];
+  }));
 
-  console.log("Cast: ", cast)
-  console.log("Seasons: ", seasons)
   console.log("Training Imgs: ", training_imgs)
   console.log("Completed: ", completed_ids)
   console.log("Other imgs: ", other_imgs)
 
+  seasons = seasons.filter((val, idx) => {
+    return training_imgs[val]['key'] != undefined
+  })
+  console.log("Seasons: ", seasons);
+  console.log("Cast: ", cast);
+  f_cast = _.pick(cast, seasons);
+  f_training_imgs = _.pick(training_imgs, seasons);
+
   document.getElementById('output').innerHTML = template({
-    cast: cast,
     seasons: seasons,
-    training_imgs: training_imgs,
+    cast: f_cast,
+    training_imgs: f_training_imgs,
     other_imgs: other_imgs
   });
 }
