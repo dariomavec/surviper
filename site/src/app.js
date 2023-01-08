@@ -80,8 +80,8 @@ async function buildBody() {
   })
   console.log("Seasons: ", seasons);
   console.log("Cast: ", cast);
-  f_cast = _.pick(cast, seasons);
-  f_training_imgs = _.pick(training_imgs, seasons);
+  var f_cast = _.pick(cast, seasons);
+  var f_training_imgs = _.pick(training_imgs, seasons);
 
   document.getElementById('output').innerHTML = template({
     seasons: seasons,
