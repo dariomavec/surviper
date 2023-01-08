@@ -83,11 +83,30 @@ async function buildBody() {
   var f_cast = _.pick(cast, seasons);
   var f_training_imgs = _.pick(training_imgs, seasons);
 
+  // Calculate proportion of images already labelled
+  var label_counts = _.fromPairs(seasons.map((season) => {
+    var count = 0;
+    var completed = 0;
+    Object.keys(training[season]).forEach((key) => {
+      count += 1;
+      if(completed_ids.includes(key)) completed += 1;
+    })
+
+    return [season, {
+      valuenow: completed,
+      valuemin: 0,
+      valuemax: count,
+      width: _.round(100 * completed / count, 0) + "%"
+    }];
+  }));
+  console.log(label_counts);
+  
   document.getElementById('output').innerHTML = template({
     seasons: seasons,
     cast: f_cast,
     training_imgs: f_training_imgs,
-    other_imgs: other_imgs
+    other_imgs: other_imgs,
+    label_counts: label_counts
   });
 }
 

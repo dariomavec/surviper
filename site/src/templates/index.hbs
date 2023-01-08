@@ -1,8 +1,8 @@
 <div class="container-lg">
     <h1>Survivor Faces</h1>
     <ul class="nav nav-tabs" id="survivorTabs" role="tablist">
-        {{#each season}}
-    <li class="nav-item" role="presentation">
+        {{#each seasons}}
+        <li class="nav-item" role="presentation">
         <button class="nav-link {{#if @first}}active{{/if}}"
                 id="surv-{{this}}-tab"
                 data-bs-toggle="tab"
@@ -12,6 +12,15 @@
                 aria-controls="surv-{{this}}-tab-pane"
                 aria-selected="{{#if @first}}true{{else}}false{{/if}}">{{this}}</button>
         {{/each}}
+        <li class="nav-item" role="presentation">
+        <button class="nav-link"
+                id="review-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#review-tab-pane"
+                type="button"
+                role="tab"
+                aria-controls="review-tab-pane"
+                aria-selected="false">Review</button>
     </ul>
 
     <div class="tab-content" id="survivorTabContent">
@@ -86,6 +95,15 @@
                 <button type="submit" class="btn btn-primary mb-3">Submit</button>
             </div>
             </form>
+            {{#with (lookup ../label_counts @key)~}}
+            <div class="progress" role="progressbar" 
+                aria-label="Faces Progress" 
+                aria-valuenow="{{valuenow}}" 
+                aria-valuemin="{{valuemin}}" 
+                aria-valuemax="{{valuemax}}">
+            <div class="progress-bar bg-success" style="width: {{width}}">{{valuenow}} / {{valuemax}}</div>
+            {{/with}} 
+            </div>
         </div>
     {{/each}}
 
