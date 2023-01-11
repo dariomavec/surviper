@@ -51,7 +51,7 @@
                             id="survivor"
                             class="text-center"
                             value="{{@key}}" required/>
-                        <img src={{this}} class="img-responsive img-icons rounded border border-secondary" />
+                        <img src="{{this}}" class="img-responsive img-icons rounded border border-secondary" />
                         </label>
                     </div>
                 {{#if (every4offset @index)}}</div>
@@ -96,36 +96,61 @@
             </div>
             </form>
             {{#with (lookup ../label_counts @key)~}}
-            <div class="progress" role="progressbar" 
-                aria-label="Faces Progress" 
-                aria-valuenow="{{valuenow}}" 
-                aria-valuemin="{{valuemin}}" 
+            <div class="progress" role="progressbar"
+                aria-label="Faces Progress"
+                aria-valuenow="{{valuenow}}"
+                aria-valuemin="{{valuemin}}"
                 aria-valuemax="{{valuemax}}">
             <div class="progress-bar bg-success" style="width: {{width}}">{{valuenow}} / {{valuemax}}</div>
-            {{/with}} 
+            {{/with}}
             </div>
         </div>
-    {{/each}}
+        {{/each}}
 
-    <script>
-    // Example starter JavaScript for disabling form submissions if there are invalid fields
-    (function() {
-    'use strict';
-    window.addEventListener('load', function() {
-        // Fetch all the forms we want to apply custom Bootstrap validation styles to
-        var forms = document.getElementsByClassName('needs-validation');
-        // Loop over them and prevent submission
-        var validation = Array.prototype.filter.call(forms, function(form) {
-        form.addEventListener('submit', function(event) {
-            if (form.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
-            }
-            form.classList.add('was-validated');
+        <script>
+        // Example starter JavaScript for disabling form submissions if there are invalid fields
+        (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.getElementsByClassName('needs-validation');
+            // Loop over them and prevent submission
+            var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                event.preventDefault();
+                event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+            });
         }, false);
-        });
-    }, false);
-    })();
-    </script>
+        })();
+        </script>
+        <div class="tab-pane fade"
+            id="review-tab-pane"
+            role="tabpanel"
+            aria-labelledby="review-tab"
+            tabindex="0">
+
+            <h3 style="margin-top:10px"># of correct labels</h3>
+
+            {{#each label_counts }}
+              {{#with this}}
+                <div class="row">
+                    <div class="col">
+                    {{@key}}
+                        <div class="progress" role="progressbar"
+                            aria-label="Faces Progress"
+                            aria-valuenow="{{correct}}"
+                            aria-valuemin="{{valuemin}}"
+                            aria-valuemax="{{completed}}">
+                        <div class="progress-bar" style="width: {{correct_width}}">{{correct}} / {{completed}}</div>
+                        </div>
+                    </div>
+                </div>
+              {{/with}}
+            {{/each}}
+        </div>
     </div>
 </div>
