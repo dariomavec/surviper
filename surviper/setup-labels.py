@@ -4,12 +4,15 @@ from PIL import Image, ImageDraw, ImageFont
 from numpy import asarray
 from pickle import dump
 from os import listdir, mkdir
-import glob
+import pandas as pd
+
+# import glob
 import os
 from re import sub
 import matplotlib.pyplot as plt
 from shutil import copytree
-import json
+
+# import json
 
 
 def mkdir_if_not_exists(path):
@@ -24,6 +27,7 @@ def setup_season(season):
     mkdir_if_not_exists("img/" + season + "/tests/inputs/")
     mkdir_if_not_exists("img/" + season + "/tests/labels/")
     mkdir_if_not_exists("img/" + season + "/tests/outputs/")
+    mkdir_if_not_exists("img/" + season + "/training/")
 
 
 def save_pickle(obj, path):
@@ -135,8 +139,18 @@ def detect_faces(imgs, mtcnn, embedder):
     return frames
 
 
+def get_cast(season):
+    cast = []
+    for path in sorted(listdir("img/" + season + "/cast/")):
+        cast.append(sub(".*/|\\.[a-z]+$|(-alt)", "", path))
+    cast.append("host")
+
+    return cast
+
+
 def prepare_season(season):
     setup_season(season)
+    cast = get_cast(season)
 
     # If required, create a face detection pipeline using MTCNN:
     mtcnn = MTCNN(keep_all=True)
@@ -147,6 +161,9 @@ def prepare_season(season):
     data = {
         "cast": detect_faces(
             prep_folder("img/" + season + "/cast/"), mtcnn, embedder
+        )
+        + detect_faces(
+            prep_folder("img/" + season + "/training/"), mtcnn, embedder
         )
         + detect_faces(prep_folder("img/host/"), mtcnn, embedder),
         "tests": detect_faces(
@@ -160,11 +177,27 @@ def prepare_season(season):
     if not os.path.exists(cast_path):
         copytree("img/" + season + "/cast/", cast_path)
 
-    cast = glob.glob("site/src/img/" + season + "/cast/*.png")
-    names = [sub("(.*/)|(\\.png)", "", cast_member) for cast_member in cast]
+    # cast = glob.glob("site/src/img/" + season + "/cast/*.png")
+    # names = [sub("(.*/)|(\\.png)", "", cast_member) for cast_member in cast]
 
-    with open(cast_path + "cast.json", "w") as f:
-        json.dump(names, f)
+    # with open(cast_path + "cast.json", "w") as f:
+    #     json.dump(names, f)
+    labels = pd.read_csv("data/faces-labels.csv")
+    labels["survivor"] = labels["survivor"].fillna("n/a")
+    # labels = labels[labels['survivor'] != 'n/a']
+    for el in data["cast"]:
+        if el["name"] in labels["id"].values:
+            print(el["name"])
+            el["name"] = labels[labels["id"] == el["name"]]["survivor"].values[
+                0
+            ]
+        elif el["name"] not in cast:
+            el["name"] = "n/a"
+
+    # Remove those that don't identify a face or don't have an identified name
+    data["cast"] = [
+        v for v in data["cast"] if len(v["faces"]) == 1 and v["name"] != "n/a"
+    ]
 
     export_cast_grid(data["cast"], "img/" + season + "/tests/labels/")
     [
@@ -176,7 +209,7 @@ def prepare_season(season):
 
 
 # prepare_season("us1")
-prepare_season("us2")
+# prepare_season("us2")
 # prepare_season("us3")
 # prepare_season("us4")
 # prepare_season("us5")

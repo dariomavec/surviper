@@ -287,7 +287,7 @@ def generate_training(season, episode, interval, n, margin=2):
     )
 
     # Deploy Images
-    deploy_images("us1")
+    deploy_images(season)
 
 
 # run_pipeline("us1", 1)
@@ -298,5 +298,8 @@ def generate_training(season, episode, interval, n, margin=2):
 
 # Capture latest timestamp where person is captured
 # Capture some images at "bad" distance
-# generate_training("us1", 1, interval=3, n=4, margin=50)
-# generate_training("us2", 1, interval=3, n=4, margin=50)
+# generate_training("us1", 2, interval=3, n=3, margin=50)
+# generate_training("us2", 2, interval=3, n=3, margin=50)
+# generate_training("us3", 1, interval=3, n=3, margin=50)
+# generate_training("us4", 1, interval=3, n=3, margin=50)
+# generate_training("us5", 1, interval=3, n=3, margin=50)
